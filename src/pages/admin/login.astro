@@ -149,51 +149,40 @@ import Layout from "../../layouts/Layout.astro";
     </div>
 </Layout>
 
-<script>
-    const users = [
-        { user: "admin", pass: "1234", role: "ADMIN" },
-        { user: "empleado", pass: "1234", role: "EMPLEADO" },
-    ];
-
+<script client:load>
     const form = document.getElementById("loginForm");
 
-    form.addEventListener("submit", (e) => {
+    form.addEventListener("submit", async (e) => {
         e.preventDefault();
 
         const userInput = document.getElementById("user").value;
         const passInput = document.getElementById("pass").value;
 
-        // ✅ CORRECCIÓN: passInput en vez de passInputF
-        const found = users.find(
-            (u) => u.user === userInput && u.pass === passInput
-        );
-
-        if (!found) {
-            const inputs = [
-                document.getElementById("user"),
-                document.getElementById("pass")
-            ];
-
-            inputs.forEach(input => {
-                input.classList.add("border-red-500", "shake");
-                setTimeout(() => {
-                    input.classList.remove("border-red-500", "shake");
-                }, 500);
+        try {
+            const res = await fetch("/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ user: userInput, pass: passInput })
             });
 
-            alert("Usuario o contraseña incorrectos");
-            return;
-        }
+            const data = await res.json();
 
-        // 🔐 GUARDAR ROL Y USUARIO
-        localStorage.setItem("rol", found.role);
-        localStorage.setItem("usuario", found.user);
+            if (!data.success) {
+                alert(data.error || "Usuario o contraseña incorrectos");
+                return;
+            }
 
-        // 🚦 REDIRECCIÓN SEGÚN ROL
-        if (found.role === "ADMIN") {
-            window.location.href = "/admin";
-        } else {
-            window.location.href = "/pos";
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("rol", data.role);
+            localStorage.setItem("usuario", userInput);
+
+            window.location.href = data.role === "ADMIN" ? "/admin" : "/pos";
+
+        } catch (err) {
+            console.error(err);
+            alert("Error interno o de conexión");
         }
     });
 </script>

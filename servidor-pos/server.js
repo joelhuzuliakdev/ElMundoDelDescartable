@@ -5,6 +5,9 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import mongoose from 'mongoose';
+import User from "./models/User.js";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 /* ==================== CONFIG ==================== */
 
@@ -15,6 +18,7 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3001;
 const DATA_DIR = path.join(__dirname, 'data');
+const SECRET = process.env.JWT_SECRET || "claveSecretaSuperSegura";
 
 /* ==================== MIDDLEWARE ==================== */
 app.use(cors());
@@ -75,6 +79,55 @@ async function writeJSON(filename, data) {
     JSON.stringify(data, null, 2)
   );
 }
+
+/* ==================== USUARIOS ==================== */
+
+app.post("/login", async (req, res) => {
+  const { user, pass } = req.body;
+
+  try {
+    // Buscar usuario
+    const found = await User.findOne({ user });
+    if (!found) {
+      return res.status(401).json({
+        success: false,
+        error: "Usuario no encontrado"
+      });
+    }
+
+    // Comparar contraseña
+    const match = await bcrypt.compare(pass, found.pass);
+    if (!match) {
+      return res.status(401).json({
+        success: false,
+        error: "Contraseña incorrecta"
+      });
+    }
+
+    // Generar token JWT
+    const token = jwt.sign(
+      {
+        user: found.user,
+        role: found.role
+      },
+      SECRET,
+      { expiresIn: "2h" }
+    );
+
+    return res.json({
+      success: true,
+      token,
+      role: found.role
+    });
+
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      success: false,
+      error: "Error interno"
+    });
+  }
+});
 
 /* ==================== PRODUCTOS ==================== */
 app.get('/productos', async (req, res) => {
