@@ -1,0 +1,471 @@
+---
+import Layout from "../../layouts/Layout.astro";
+---
+
+<Layout title="Pendientes de Cobro">
+  <div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
+    <div class="max-w-7xl mx-auto">
+
+      <!-- Header -->
+      <div class="bg-white rounded-xl shadow-lg p-6 mb-6 flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-slate-800">⏳ Pendientes de Cobro</h1>
+          <p class="text-slate-600">Gestiona las ventas pendientes de pago</p>
+        </div>
+        <a href="/admin" class="text-slate-600 hover:text-slate-800 transition-colors">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+          </svg>
+        </a>
+      </div>
+
+      <!-- Estadísticas -->
+      <div class="grid md:grid-cols-3 gap-6 mb-6">
+        <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 text-white rounded-xl p-6 shadow-lg">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="text-sm opacity-90 mb-1">Total Pendiente</div>
+              <div class="text-3xl font-bold">$<span id="totalPendiente">0.00</span></div>
+            </div>
+            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+              <span class="text-3xl">💰</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl p-6 shadow-lg">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="text-sm opacity-90 mb-1">Clientes con Deuda</div>
+              <div class="text-3xl font-bold"><span id="cantidadClientes">0</span></div>
+            </div>
+            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+              <span class="text-3xl">👥</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl p-6 shadow-lg">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="text-sm opacity-90 mb-1">Cobrado Hoy</div>
+              <div class="text-3xl font-bold">$<span id="cobradoHoy">0.00</span></div>
+            </div>
+            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+              <span class="text-3xl">✅</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Buscador -->
+      <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+        <div class="flex gap-4">
+          <div class="flex-1">
+            <input id="buscador" type="text" placeholder="Buscar por nombre o celular..." 
+              class="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:border-yellow-500 focus:ring focus:ring-yellow-200 transition-all">
+          </div>
+          <button id="btnLimpiarBusqueda" class="px-6 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-lg transition-all">
+            Limpiar
+          </button>
+        </div>
+      </div>
+
+      <!-- Lista de Pendientes -->
+      <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="bg-slate-700 p-4 flex items-center justify-between">
+          <h2 class="text-white font-semibold text-lg">Lista de Pendientes (<span id="contadorPendientes">0</span>)</h2>
+          <div class="flex gap-2">
+            <button id="btnOrdenarFecha" class="px-4 py-2 bg-slate-600 hover:bg-slate-500 text-white text-sm rounded-lg transition-all">
+              📅 Fecha
+            </button>
+            <button id="btnOrdenarMonto" class="px-4 py-2 bg-slate-600 hover:bg-slate-500 text-white text-sm rounded-lg transition-all">
+              💵 Monto
+            </button>
+          </div>
+        </div>
+
+        <div id="listaPendientes" class="divide-y divide-slate-200"></div>
+
+        <div id="emptyPendientes" class="hidden p-8 text-center text-slate-400">
+          <svg class="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <p class="text-lg font-medium">¡No hay pendientes de cobro!</p>
+          <p class="text-sm mt-2">Todos los pagos están al día</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Modal de Cobro -->
+  <div id="modalCobro" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="bg-gradient-to-r from-green-600 to-green-700 p-6 text-white">
+        <h3 class="text-2xl font-bold">💰 Cobrar Pendiente</h3>
+        <p class="text-green-100 mt-1">Procesar pago de: <span id="modalClienteNombre" class="font-semibold"></span></p>
+      </div>
+
+      <div class="p-6 space-y-6">
+        <!-- Información del cliente -->
+        <div class="bg-slate-50 rounded-lg p-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <div class="text-sm text-slate-600">Nombre</div>
+              <div class="font-semibold text-slate-800" id="modalNombre"></div>
+            </div>
+            <div>
+              <div class="text-sm text-slate-600">Celular</div>
+              <div class="font-semibold text-slate-800" id="modalCelular"></div>
+            </div>
+            <div>
+              <div class="text-sm text-slate-600">Fecha</div>
+              <div class="font-semibold text-slate-800" id="modalFecha"></div>
+            </div>
+            <div>
+              <div class="text-sm text-slate-600">Total a Cobrar</div>
+              <div class="text-2xl font-bold text-green-600">$<span id="modalTotal">0.00</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Productos -->
+        <div>
+          <h4 class="font-semibold text-slate-800 mb-3">Productos</h4>
+          <div class="bg-slate-50 rounded-lg overflow-hidden">
+            <table class="w-full text-sm">
+              <thead class="bg-slate-200">
+                <tr>
+                  <th class="p-2 text-left">Producto</th>
+                  <th class="p-2 text-center">Cant.</th>
+                  <th class="p-2 text-right">Precio</th>
+                  <th class="p-2 text-right">Subtotal</th>
+                </tr>
+              </thead>
+              <tbody id="modalProductos"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Método de pago -->
+        <div>
+          <h4 class="font-semibold text-slate-800 mb-3">Método de Pago</h4>
+          <div class="grid grid-cols-2 gap-3">
+            <button class="metodo-cobro p-4 border-2 rounded-lg transition-all hover:border-green-500" data-metodo="efectivo">
+              <div class="flex items-center gap-2">
+                <span class="text-2xl">💵</span>
+                <span class="font-semibold">Efectivo</span>
+              </div>
+            </button>
+            <button class="metodo-cobro p-4 border-2 rounded-lg transition-all hover:border-green-500" data-metodo="transferencia">
+              <div class="flex items-center gap-2">
+                <span class="text-2xl">🏦</span>
+                <span class="font-semibold">Transferencia</span>
+              </div>
+            </button>
+            <button class="metodo-cobro p-4 border-2 rounded-lg transition-all hover:border-green-500" data-metodo="debito">
+              <div class="flex items-center gap-2">
+                <span class="text-2xl">💳</span>
+                <span class="font-semibold">Débito</span>
+              </div>
+            </button>
+            <button class="metodo-cobro p-4 border-2 rounded-lg transition-all hover:border-green-500" data-metodo="credito">
+              <div class="flex items-center gap-2">
+                <span class="text-2xl">💎</span>
+                <span class="font-semibold">Crédito</span>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Monto recibido (solo efectivo) -->
+        <div id="modalFormEfectivo" class="hidden">
+          <label class="block text-sm font-medium text-slate-700 mb-2">Monto recibido</label>
+          <div class="relative">
+            <span class="absolute left-3 top-3 text-slate-500 font-semibold">$</span>
+            <input id="modalMontoRecibido" type="number" step="0.01" placeholder="0.00" 
+              class="w-full pl-8 pr-4 py-3 border-2 border-slate-200 rounded-lg focus:border-green-500 focus:ring focus:ring-green-200 transition-all text-lg font-semibold">
+          </div>
+        </div>
+
+        <div id="modalVueltoContainer" class="hidden bg-green-50 border-2 border-green-200 rounded-lg p-4">
+          <div class="flex justify-between items-center">
+            <span class="text-green-800 font-medium">Vuelto:</span>
+            <span class="text-2xl font-bold text-green-600">$<span id="modalVuelto">0.00</span></span>
+          </div>
+        </div>
+
+        <!-- Botones -->
+        <div class="flex gap-3 pt-4">
+          <button id="btnCerrarModal" class="flex-1 px-6 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-lg transition-all">
+            Cancelar
+          </button>
+          <button id="btnConfirmarCobro" disabled
+            class="flex-1 px-6 py-3 bg-green-600 hover:bg-green-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-all">
+            ✅ Confirmar Cobro
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+let pendientes = JSON.parse(localStorage.getItem("pendientesCobro") || "[]");
+let pendienteFiltrados = [...pendientes];
+let pendienteSeleccionado = null;
+let metodoCobroSeleccionado = null;
+
+const listaPendientes = document.getElementById("listaPendientes");
+const emptyPendientes = document.getElementById("emptyPendientes");
+const buscador = document.getElementById("buscador");
+const btnLimpiarBusqueda = document.getElementById("btnLimpiarBusqueda");
+const btnOrdenarFecha = document.getElementById("btnOrdenarFecha");
+const btnOrdenarMonto = document.getElementById("btnOrdenarMonto");
+const modalCobro = document.getElementById("modalCobro");
+const btnCerrarModal = document.getElementById("btnCerrarModal");
+const btnConfirmarCobro = document.getElementById("btnConfirmarCobro");
+const modalFormEfectivo = document.getElementById("modalFormEfectivo");
+const modalMontoRecibido = document.getElementById("modalMontoRecibido");
+const modalVueltoContainer = document.getElementById("modalVueltoContainer");
+const modalVuelto = document.getElementById("modalVuelto");
+
+function renderEstadisticas() {
+  const totalPendiente = pendientes.reduce((sum, p) => sum + p.total, 0);
+  const cantidadClientes = pendientes.length;
+  
+  // Calcular cobrado hoy
+  const hoy = new Date().toISOString().split('T')[0];
+  const ventas = JSON.parse(localStorage.getItem("ventas") || "[]");
+  const cobradoHoy = ventas
+    .filter(v => v.fecha.startsWith(hoy) && v.metodoPago === 'efectivo')
+    .reduce((sum, v) => sum + v.total, 0);
+
+  document.getElementById("totalPendiente").textContent = totalPendiente.toFixed(2);
+  document.getElementById("cantidadClientes").textContent = cantidadClientes;
+  document.getElementById("cobradoHoy").textContent = cobradoHoy.toFixed(2);
+}
+
+function renderPendientes() {
+  const contadorPendientes = document.getElementById("contadorPendientes");
+  contadorPendientes.textContent = pendienteFiltrados.length;
+
+  if (pendienteFiltrados.length === 0) {
+    listaPendientes.innerHTML = "";
+    emptyPendientes.classList.remove("hidden");
+    return;
+  }
+
+  emptyPendientes.classList.add("hidden");
+  listaPendientes.innerHTML = pendienteFiltrados.map((p, index) => {
+    const fecha = new Date(p.fecha);
+    const diasPendiente = Math.floor((new Date() - fecha) / (1000 * 60 * 60 * 24));
+    const urgencia = diasPendiente > 7 ? 'bg-red-50 border-l-4 border-red-500' : 
+                     diasPendiente > 3 ? 'bg-yellow-50 border-l-4 border-yellow-500' : 
+                     'bg-green-50 border-l-4 border-green-500';
+
+    return `
+      <div class="p-6 hover:bg-slate-50 transition-colors ${urgencia}">
+        <div class="flex items-center justify-between">
+          <div class="flex-1">
+            <div class="flex items-center gap-3 mb-2">
+              <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                <span class="text-xl">👤</span>
+              </div>
+              <div>
+                <div class="font-bold text-lg text-slate-800">${p.nombreCliente}</div>
+                <div class="flex items-center gap-4 text-sm text-slate-600">
+                  <span>📱 ${p.celularCliente}</span>
+                  <span>📅 ${fecha.toLocaleDateString('es-AR')}</span>
+                  <span class="font-semibold ${diasPendiente > 7 ? 'text-red-600' : diasPendiente > 3 ? 'text-yellow-600' : 'text-green-600'}">
+                    ${diasPendiente === 0 ? 'Hoy' : `Hace ${diasPendiente} día${diasPendiente > 1 ? 's' : ''}`}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="ml-15 text-sm text-slate-600">
+              ${p.items.length} producto${p.items.length > 1 ? 's' : ''} • 
+              ${p.items.map(item => `${item.cantidad}x ${item.nombre}`).join(', ')}
+            </div>
+          </div>
+          <div class="text-right ml-6">
+            <div class="text-2xl font-bold text-yellow-600 mb-2">$${p.total.toFixed(2)}</div>
+            <button onclick="abrirModalCobro(${pendientes.indexOf(p)})" 
+              class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-all shadow-md">
+              💰 Cobrar
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+window.abrirModalCobro = (index) => {
+  pendienteSeleccionado = pendientes[index];
+  
+  document.getElementById("modalClienteNombre").textContent = pendienteSeleccionado.nombreCliente;
+  document.getElementById("modalNombre").textContent = pendienteSeleccionado.nombreCliente;
+  document.getElementById("modalCelular").textContent = pendienteSeleccionado.celularCliente;
+  document.getElementById("modalTotal").textContent = pendienteSeleccionado.total.toFixed(2);
+  
+  const fecha = new Date(pendienteSeleccionado.fecha);
+  document.getElementById("modalFecha").textContent = fecha.toLocaleDateString('es-AR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
+  const modalProductos = document.getElementById("modalProductos");
+  modalProductos.innerHTML = pendienteSeleccionado.items.map(item => `
+    <tr>
+      <td class="p-2">${item.nombre}</td>
+      <td class="p-2 text-center">${item.cantidad}</td>
+      <td class="p-2 text-right">$${item.precio.toFixed(2)}</td>
+      <td class="p-2 text-right font-semibold">$${item.subtotal.toFixed(2)}</td>
+    </tr>
+  `).join('');
+
+  modalCobro.classList.remove("hidden");
+  resetearModalCobro();
+};
+
+function resetearModalCobro() {
+  document.querySelectorAll(".metodo-cobro").forEach(b => {
+    b.classList.remove("border-green-500", "bg-green-50");
+  });
+  metodoCobroSeleccionado = null;
+  modalMontoRecibido.value = "";
+  modalFormEfectivo.classList.add("hidden");
+  modalVueltoContainer.classList.add("hidden");
+  btnConfirmarCobro.disabled = true;
+}
+
+document.querySelectorAll(".metodo-cobro").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".metodo-cobro").forEach(b => {
+      b.classList.remove("border-green-500", "bg-green-50");
+    });
+    btn.classList.add("border-green-500", "bg-green-50");
+    
+    metodoCobroSeleccionado = btn.dataset.metodo;
+    
+    if (metodoCobroSeleccionado === "efectivo") {
+      modalFormEfectivo.classList.remove("hidden");
+      btnConfirmarCobro.disabled = true;
+    } else {
+      modalFormEfectivo.classList.add("hidden");
+      modalVueltoContainer.classList.add("hidden");
+      btnConfirmarCobro.disabled = false;
+    }
+  });
+});
+
+modalMontoRecibido.addEventListener("input", () => {
+  const monto = parseFloat(modalMontoRecibido.value) || 0;
+  const total = pendienteSeleccionado.total;
+  
+  if (monto >= total) {
+    const vueltoVal = monto - total;
+    modalVuelto.textContent = vueltoVal.toFixed(2);
+    modalVueltoContainer.classList.remove("hidden");
+    btnConfirmarCobro.disabled = false;
+  } else {
+    modalVueltoContainer.classList.add("hidden");
+    btnConfirmarCobro.disabled = true;
+  }
+});
+
+btnCerrarModal.addEventListener("click", () => {
+  modalCobro.classList.add("hidden");
+  pendienteSeleccionado = null;
+});
+
+btnConfirmarCobro.addEventListener("click", () => {
+  let montoRecibidoVal = 0;
+  let vueltoVal = 0;
+
+  if (metodoCobroSeleccionado === "efectivo") {
+    montoRecibidoVal = parseFloat(modalMontoRecibido.value);
+    vueltoVal = montoRecibidoVal - pendienteSeleccionado.total;
+  } else {
+    montoRecibidoVal = pendienteSeleccionado.total;
+    vueltoVal = 0;
+  }
+
+  // Actualizar venta en historial (cambiar de pendiente a cobrado)
+  let ventas = JSON.parse(localStorage.getItem("ventas") || "[]");
+  const ventaOriginal = ventas.find(v => 
+    v.nombreCliente === pendienteSeleccionado.nombreCliente && 
+    v.celularCliente === pendienteSeleccionado.celularCliente &&
+    v.metodoPago === "pendiente"
+  );
+
+  if (ventaOriginal) {
+    ventaOriginal.metodoPago = metodoCobroSeleccionado;
+    ventaOriginal.montoRecibido = montoRecibidoVal;
+    ventaOriginal.vuelto = vueltoVal;
+    ventaOriginal.fechaCobro = new Date().toISOString();
+    localStorage.setItem("ventas", JSON.stringify(ventas));
+  }
+
+  // Eliminar de pendientes
+  const index = pendientes.indexOf(pendienteSeleccionado);
+  pendientes.splice(index, 1);
+  localStorage.setItem("pendientesCobro", JSON.stringify(pendientes));
+
+  showNotification(`✅ Cobro exitoso a ${pendienteSeleccionado.nombreCliente} • Vuelto: $${vueltoVal.toFixed(2)}`, "success");
+
+  modalCobro.classList.add("hidden");
+  pendienteSeleccionado = null;
+  pendienteFiltrados = [...pendientes];
+  renderEstadisticas();
+  renderPendientes();
+});
+
+buscador.addEventListener("input", (e) => {
+  const busqueda = e.target.value.toLowerCase().trim();
+  pendienteFiltrados = pendientes.filter(p => 
+    p.nombreCliente.toLowerCase().includes(busqueda) ||
+    p.celularCliente.includes(busqueda)
+  );
+  renderPendientes();
+});
+
+btnLimpiarBusqueda.addEventListener("click", () => {
+  buscador.value = "";
+  pendienteFiltrados = [...pendientes];
+  renderPendientes();
+});
+
+btnOrdenarFecha.addEventListener("click", () => {
+  pendienteFiltrados.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+  renderPendientes();
+  showNotification("Ordenado por fecha (más recientes primero)", "success");
+});
+
+btnOrdenarMonto.addEventListener("click", () => {
+  pendienteFiltrados.sort((a, b) => b.total - a.total);
+  renderPendientes();
+  showNotification("Ordenado por monto (mayor a menor)", "success");
+});
+
+function showNotification(message, type) {
+  const n = document.createElement("div");
+  n.className = `fixed top-4 right-4 px-6 py-4 rounded-lg shadow-xl text-white font-semibold z-50 transform transition-all duration-300 ${type === "success" ? "bg-green-600" : "bg-red-600"}`;
+  n.textContent = message;
+  document.body.appendChild(n);
+  setTimeout(() => {
+    n.style.opacity = "0";
+    setTimeout(() => n.remove(), 300);
+  }, 3000);
+}
+
+// Inicializar
+renderEstadisticas();
+renderPendientes();
+</script>
+</Layout>

@@ -1,0 +1,515 @@
+---
+import Layout from "../../layouts/Layout.astro";
+---
+
+<Layout title="Productos">
+    <!-- PROTECCIÓN -->
+    <script>
+        const role = localStorage.getItem("role");
+        if (role !== "ADMIN") {
+            window.location.href = "/login";
+        }
+    </script>
+
+    <div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
+        <div class="max-w-7xl mx-auto">
+            <!-- Header -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-blue-100 p-3 rounded-lg">
+                            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h1 class="text-3xl font-bold text-slate-800">Gestión de Productos</h1>
+                            <p class="text-slate-600">Administra tu inventario y precios</p>
+                        </div>
+                    </div>
+                    <a href="/admin" class="text-slate-600 hover:text-slate-800 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Formulario -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                <h2 class="text-xl font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                    <span id="formTitle">Agregar Nuevo Producto</span>
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
+                    <div class="md:col-span-1">
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Código</label>
+                        <input id="codigo" placeholder="Ej: 12345" 
+                            class="w-full border-2 border-slate-200 rounded-lg p-3 focus:border-blue-500 focus:ring focus:ring-blue-200 transition-all">
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Nombre del Producto</label>
+                        <input id="nombre" placeholder="Ej: Lapicera azul" 
+                            class="w-full border-2 border-slate-200 rounded-lg p-3 focus:border-blue-500 focus:ring focus:ring-blue-200 transition-all">
+                    </div>
+
+                    <div class="md:col-span-1">
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Categoría</label>
+                        <select id="categoria" class="w-full border-2 border-slate-200 rounded-lg p-3 focus:border-blue-500 focus:ring focus:ring-blue-200 transition-all">
+                            <option value="descartable">Descartable</option>
+                            <option value="libreria">Librería</option>
+                            <option value="caramelo">Caramelo</option>
+                        </select>
+                    </div>
+
+                    <div class="md:col-span-1">
+                        <label class="block text-sm font-medium text-slate-700 mb-2">
+                            Cant. por Bulto
+                            <span class="text-xs text-slate-500 ml-1">(opcional)</span>
+                        </label>
+                        <input id="cantidadBulto" type="number" placeholder="Ej: 50" 
+                            class="w-full border-2 border-slate-200 rounded-lg p-3 focus:border-blue-500 focus:ring focus:ring-blue-200 transition-all">
+                    </div>
+                </div>
+
+                <!-- Sección de Precios -->
+                <div class="mt-6 border-t pt-6">
+                    <h3 class="text-lg font-semibold text-slate-800 mb-4">Precios por Cantidad</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Precio Menor</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-3 text-slate-500">$</span>
+                                <input id="precioMenor" type="number" step="0.01" placeholder="0.00" 
+                                    class="w-full border-2 border-slate-200 rounded-lg p-3 pl-8 focus:border-blue-500 focus:ring focus:ring-blue-200 transition-all">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">
+                                Precio x50
+                                <span class="text-xs text-slate-500 ml-1">(opcional)</span>
+                            </label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-3 text-slate-500">$</span>
+                                <input id="precioPor50" type="number" step="0.01" placeholder="0.00" 
+                                    class="w-full border-2 border-slate-200 rounded-lg p-3 pl-8 focus:border-blue-500 focus:ring focus:ring-blue-200 transition-all">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">
+                                Precio x100
+                                <span class="text-xs text-slate-500 ml-1">(opcional)</span>
+                            </label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-3 text-slate-500">$</span>
+                                <input id="precioPor100" type="number" step="0.01" placeholder="0.00" 
+                                    class="w-full border-2 border-slate-200 rounded-lg p-3 pl-8 focus:border-blue-500 focus:ring focus:ring-blue-200 transition-all">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">
+                                Precio Bulto
+                                <span class="text-xs text-slate-500 ml-1">(opcional)</span>
+                            </label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-3 text-slate-500">$</span>
+                                <input id="precioBulto" type="number" step="0.01" placeholder="0.00" 
+                                    class="w-full border-2 border-slate-200 rounded-lg p-3 pl-8 focus:border-blue-500 focus:ring focus:ring-blue-200 transition-all">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex gap-3 mt-6">
+                    <button type="button" id="btnGuardar" onclick="saveProducto()" 
+                        class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-lg px-6 py-3 transition-all transform hover:scale-105 shadow-lg flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        Agregar Producto
+                    </button>
+                    <button type="button" id="btnCancelar" onclick="cancelEdit()" 
+                        class="hidden bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-lg px-6 py-3 transition-all">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+
+            <!-- FILTRO RÁPIDO POR CATEGORÍA -->
+            <div class="flex gap-3 mt-4">
+                <button onclick="filtrarPorCategoria('descartable')"
+                    class="px-4 py-2 rounded-lg bg-yellow-100 text-yellow-800 font-semibold hover:bg-yellow-200 transition">
+                    Descartable
+                </button>
+
+                <button onclick="filtrarPorCategoria('libreria')"
+                    class="px-4 py-2 rounded-lg bg-blue-100 text-blue-800 font-semibold hover:bg-blue-200 transition">
+                    Librería
+                </button>
+
+                <button onclick="filtrarPorCategoria('caramelo')"
+                    class="px-4 py-2 rounded-lg bg-pink-100 text-pink-800 font-semibold hover:bg-pink-200 transition">
+                    Caramelo
+                </button>
+
+                <button onclick="filtrarPorCategoria('')"
+                    class="px-4 py-2 rounded-lg bg-slate-200 text-slate-700 font-semibold hover:bg-slate-300 transition">
+                    Todos
+                </button>
+            </div>
+
+            <!-- Buscador y Filtros -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                <div class="flex flex-col md:flex-row gap-4">
+                    <div class="flex-1">
+                        <div class="relative">
+                            <svg class="w-5 h-5 text-slate-400 absolute left-3 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                            <input id="buscar" type="text" placeholder="Buscar por código o nombre..." 
+                                class="w-full border-2 border-slate-200 rounded-lg p-3 pl-10 focus:border-blue-500 focus:ring focus:ring-blue-200 transition-all">
+                        </div>
+                    </div>
+                    <select id="filtroCategoria" class="border-2 border-slate-200 rounded-lg p-3 focus:border-blue-500 focus:ring focus:ring-blue-200 transition-all">
+                        <option value="">Todas las categorías</option>
+                        <option value="descartable">Descartable</option>
+                        <option value="libreria">Librería</option>
+                        <option value="caramelo">Caramelo</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Tabla de Productos -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="bg-gradient-to-r from-slate-700 to-slate-800 p-4 flex items-center justify-between">
+                    <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                        </svg>
+                        Catálogo de Productos
+                    </h2>
+                    <span id="contadorProductos" class="bg-white/20 px-4 py-1 rounded-full text-sm font-medium text-white">
+                        0 productos
+                    </span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-slate-50">
+                            <tr class="text-xs font-semibold text-slate-600 uppercase">
+                                <th class="p-4 text-left">Código</th>
+                                <th class="p-4 text-left">Producto</th>
+                                <th class="p-4 text-left">Categoría</th>
+                                <th class="p-4 text-center">Cant. Bulto</th>
+                                <th class="p-4 text-right">Precios</th>
+                                <th class="p-4 text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla" class="divide-y divide-slate-200"></tbody>
+                    </table>
+                    <div id="emptyState" class="p-12 text-center text-slate-400">
+                        <svg class="w-16 h-16 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                        </svg>
+                        <p class="font-medium">No hay productos registrados</p>
+                        <p class="text-sm">Agrega tu primer producto para comenzar</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</Layout>
+
+<script>
+    let productos = JSON.parse(localStorage.getItem("productos")) || [];
+    let editIndex = null;
+    let productosFiltrados = [...productos];
+
+    const categoriaColors = {
+        descartable: 'bg-yellow-100 text-yellow-800',
+        libreria: 'bg-blue-100 text-blue-800',
+        caramelo: 'bg-pink-100 text-pink-800',
+        bebida: 'bg-cyan-100 text-cyan-800',
+        snack: 'bg-orange-100 text-orange-800',
+        limpieza: 'bg-green-100 text-green-800'
+    };
+
+    document.getElementById('buscar').addEventListener('input', filtrarProductos);
+    document.getElementById('filtroCategoria').addEventListener('change', filtrarProductos);
+
+    function filtrarProductos() {
+        const busqueda = document.getElementById('buscar').value.toLowerCase();
+        const categoria = document.getElementById('filtroCategoria').value;
+
+        productosFiltrados = productos.filter(p => {
+            const matchBusqueda = p.codigo.toLowerCase().includes(busqueda) || 
+                                 p.nombre.toLowerCase().includes(busqueda);
+            const matchCategoria = !categoria || p.categoria === categoria;
+            return matchBusqueda && matchCategoria;
+        });
+
+        render();
+    }
+
+    window.saveProducto = function () {
+        const producto = {
+            codigo: document.getElementById('codigo').value.trim(),
+            nombre: document.getElementById('nombre').value.trim(),
+            categoria: document.getElementById('categoria').value,
+            cantidadBulto: document.getElementById('cantidadBulto').value || null,
+            precios: {
+                menor: document.getElementById('precioMenor').value,
+                por50: document.getElementById('precioPor50').value || null,
+                por100: document.getElementById('precioPor100').value || null,
+                bulto: document.getElementById('precioBulto').value || null
+            }
+        };
+
+        if (!producto.codigo || !producto.nombre || !producto.precios.menor) {
+            showNotification("Por favor completa: código, nombre y precio menor", "error");
+            return;
+        }
+
+        if (editIndex === null && productos.some(p => p.codigo === producto.codigo)) {
+            showNotification("Ya existe un producto con ese código", "error");
+            return;
+        }
+
+        if (editIndex === null) {
+            productos.push(producto);
+            showNotification("Producto agregado exitosamente", "success");
+        } else {
+            productos[editIndex] = producto;
+            showNotification("Producto actualizado exitosamente", "success");
+            cancelEdit();
+        }
+
+        document.getElementById('codigo').value = "";
+        document.getElementById('nombre').value = "";
+        document.getElementById('cantidadBulto').value = "";
+        document.getElementById('precioMenor').value = "";
+        document.getElementById('precioPor50').value = "";
+        document.getElementById('precioPor100').value = "";
+        document.getElementById('precioBulto').value = "";
+        document.getElementById('categoria').value = "descartable";
+
+        productosFiltrados = [...productos];
+        render();
+    };
+
+    window.editProducto = function (i) {
+        const productoIndex = productos.findIndex(p => p === productosFiltrados[i]);
+        const p = productos[productoIndex];
+
+        document.getElementById('codigo').value = p.codigo;
+        document.getElementById('nombre').value = p.nombre;
+        document.getElementById('categoria').value = p.categoria;
+        document.getElementById('cantidadBulto').value = p.cantidadBulto || '';
+        
+        if (p.precios) {
+            document.getElementById('precioMenor').value = p.precios.menor || '';
+            document.getElementById('precioPor50').value = p.precios.por50 || '';
+            document.getElementById('precioPor100').value = p.precios.por100 || '';
+            document.getElementById('precioBulto').value = p.precios.bulto || p.precios.mayor || '';
+        } else {
+            document.getElementById('precioMenor').value = p.menor || '';
+            document.getElementById('precioPor50').value = '';
+            document.getElementById('precioPor100').value = '';
+            document.getElementById('precioBulto').value = p.mayor || '';
+        }
+
+        editIndex = productoIndex;
+        document.getElementById('btnGuardar').innerHTML = `
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            Guardar Cambios
+        `;
+        document.getElementById('btnGuardar').className = "bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-semibold rounded-lg px-6 py-3 transition-all transform hover:scale-105 shadow-lg flex items-center gap-2";
+        document.getElementById('btnCancelar').classList.remove('hidden');
+        document.getElementById('formTitle').textContent = "Editar Producto";
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    window.cancelEdit = function () {
+        editIndex = null;
+        document.getElementById('btnGuardar').innerHTML = `
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+            Agregar Producto
+        `;
+        document.getElementById('btnGuardar').className = "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-lg px-6 py-3 transition-all transform hover:scale-105 shadow-lg flex items-center gap-2";
+        document.getElementById('btnCancelar').classList.add('hidden');
+        document.getElementById('formTitle').textContent = "Agregar Nuevo Producto";
+
+        document.getElementById('codigo').value = "";
+        document.getElementById('nombre').value = "";
+        document.getElementById('cantidadBulto').value = "";
+        document.getElementById('precioMenor').value = "";
+        document.getElementById('precioPor50').value = "";
+        document.getElementById('precioPor100').value = "";
+        document.getElementById('precioBulto').value = "";
+        document.getElementById('categoria').value = "descartable";
+    };
+
+    window.delProducto = function (i) {
+        const productoIndex = productos.findIndex(p => p === productosFiltrados[i]);
+        const producto = productos[productoIndex];
+
+        if (confirm(`¿Eliminar "${producto.nombre}"?`)) {
+            productos.splice(productoIndex, 1);
+            productosFiltrados = [...productos];
+            showNotification("Producto eliminado", "success");
+            render();
+        }
+    };
+
+    function render() {
+        const tbody = document.getElementById("tabla");
+        const emptyState = document.getElementById("emptyState");
+        const contador = document.getElementById("contadorProductos");
+        
+        tbody.innerHTML = "";
+
+        if (productosFiltrados.length === 0) {
+            emptyState.style.display = "block";
+            contador.textContent = "0 productos";
+            localStorage.setItem("productos", JSON.stringify(productos));
+            return;
+        }
+
+        emptyState.style.display = "none";
+        contador.textContent = `${productosFiltrados.length} producto${productosFiltrados.length !== 1 ? 's' : ''}`;
+
+        productosFiltrados.forEach((p, i) => {
+            const colorCategoria = categoriaColors[p.categoria] || 'bg-gray-100 text-gray-800';
+            
+            let preciosHTML = '';
+            
+            if (p.precios) {
+                preciosHTML = `
+                    <div class="text-right space-y-1">
+                        <div class="flex justify-end items-center gap-2">
+                            <span class="text-xs text-slate-500">Menor:</span>
+                            <span class="font-semibold text-slate-700">$${Number(p.precios.menor).toFixed(2)}</span>
+                        </div>
+                        ${p.precios.por50 ? `
+                        <div class="flex justify-end items-center gap-2">
+                            <span class="text-xs text-slate-500">x50:</span>
+                            <span class="font-semibold text-blue-600">$${Number(p.precios.por50).toFixed(2)}</span>
+                        </div>
+                        ` : ''}
+                        ${p.precios.por100 ? `
+                        <div class="flex justify-end items-center gap-2">
+                            <span class="text-xs text-slate-500">x100:</span>
+                            <span class="font-semibold text-green-600">$${Number(p.precios.por100).toFixed(2)}</span>
+                        </div>
+                        ` : ''}
+                        ${p.precios.bulto ? `
+                        <div class="flex justify-end items-center gap-2">
+                            <span class="text-xs text-slate-500">Bulto:</span>
+                            <span class="font-semibold text-purple-600">$${Number(p.precios.bulto).toFixed(2)}</span>
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+            } else {
+                preciosHTML = `
+                    <div class="text-right space-y-1">
+                        <div class="flex justify-end items-center gap-2">
+                            <span class="text-xs text-slate-500">Menor:</span>
+                            <span class="font-semibold text-slate-700">$${Number(p.menor).toFixed(2)}</span>
+                        </div>
+                        ${p.mayor ? `
+                        <div class="flex justify-end items-center gap-2">
+                            <span class="text-xs text-slate-500">Mayor:</span>
+                            <span class="font-semibold text-purple-600">$${Number(p.mayor).toFixed(2)}</span>
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+            }
+            
+            tbody.innerHTML += `
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="p-4">
+                        <span class="font-mono text-sm bg-slate-100 px-3 py-1 rounded">${p.codigo}</span>
+                    </td>
+                    <td class="p-4">
+                        <div class="font-medium text-slate-800">${p.nombre}</div>
+                    </td>
+                    <td class="p-4">
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold ${colorCategoria}">
+                            ${p.categoria.charAt(0).toUpperCase() + p.categoria.slice(1)}
+                        </span>
+                    </td>
+                    <td class="p-4 text-center">
+                        ${p.cantidadBulto ? `
+                            <span class="inline-flex items-center gap-1 bg-purple-50 text-purple-700 px-3 py-1 rounded-full text-sm font-semibold">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                                </svg>
+                                ${p.cantidadBulto} unid.
+                            </span>
+                        ` : '<span class="text-slate-400 text-sm">-</span>'}
+                    </td>
+                    <td class="p-4">
+                        ${preciosHTML}
+                    </td>
+                    <td class="p-4">
+                        <div class="flex items-center justify-center gap-2">
+                            <button onclick="editProducto(${i})" 
+                                class="text-blue-600 hover:text-blue-800 hover:bg-blue-50 p-2 rounded transition-all" 
+                                title="Editar">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                            </button>
+                            <button onclick="delProducto(${i})" 
+                                class="text-red-600 hover:text-red-800 hover:bg-red-50 p-2 rounded transition-all" 
+                                title="Eliminar">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+
+        localStorage.setItem("productos", JSON.stringify(productos));
+    }
+
+    function showNotification(message, type) {
+        const notification = document.createElement("div");
+        notification.className = `fixed top-4 right-4 px-6 py-4 rounded-lg shadow-xl text-white font-semibold z-50 transform transition-all duration-300 ${
+            type === "success" ? "bg-green-600" : "bg-red-600"
+        }`;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.style.opacity = "0";
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+    }
+
+    window.filtrarPorCategoria = function (categoria) {
+        document.getElementById('filtroCategoria').value = categoria;
+        filtrarProductos();
+    };
+
+    render();
+</script>

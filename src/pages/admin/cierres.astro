@@ -1,0 +1,200 @@
+---
+import Layout from "../../layouts/Layout.astro";
+---
+
+<Layout title="Cierres de Caja">
+  <div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
+    <div class="max-w-7xl mx-auto">
+
+      <!-- HEADER -->
+      <div class="bg-white rounded-xl shadow-lg p-6 mb-6 flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-slate-800">📊 Cierres de Caja</h1>
+          <p class="text-slate-600">Historial de cierres diarios</p>
+        </div>
+        <a href="/admin" class="text-slate-600 hover:text-slate-800 transition-colors">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+          </svg>
+        </a>
+      </div>
+
+      <!-- ESTADÍSTICAS TOTALES -->
+      <div class="grid md:grid-cols-4 gap-4 mb-6">
+        <div class="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl p-6 shadow-lg">
+          <div class="text-sm opacity-90 mb-1">Total Efectivo</div>
+          <div class="text-3xl font-bold">$<span id="totalEfectivo">0.00</span></div>
+        </div>
+        <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl p-6 shadow-lg">
+          <div class="text-sm opacity-90 mb-1">Total Transferencia</div>
+          <div class="text-3xl font-bold">$<span id="totalTransferencia">0.00</span></div>
+        </div>
+        <div class="bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-xl p-6 shadow-lg">
+          <div class="text-sm opacity-90 mb-1">Total Débito</div>
+          <div class="text-3xl font-bold">$<span id="totalDebito">0.00</span></div>
+        </div>
+        <div class="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl p-6 shadow-lg">
+          <div class="text-sm opacity-90 mb-1">Total Crédito</div>
+          <div class="text-3xl font-bold">$<span id="totalCredito">0.00</span></div>
+        </div>
+      </div>
+
+      <!-- TABLA DE CIERRES -->
+      <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="bg-slate-700 p-4">
+          <h2 class="text-white font-semibold text-lg">Historial de Cierres</h2>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead class="bg-slate-100">
+              <tr class="text-slate-600">
+                <th class="p-4 text-left">Fecha</th>
+                <th class="p-4 text-right">💵 Efectivo</th>
+                <th class="p-4 text-right">🏦 Transferencia</th>
+                <th class="p-4 text-right">💳 Débito</th>
+                <th class="p-4 text-right">💎 Crédito</th>
+                <th class="p-4 text-right font-bold">Total</th>
+                <th class="p-4 text-center">Ventas</th>
+                <th class="p-4 text-center">Detalles</th>
+              </tr>
+            </thead>
+            <tbody id="tablaCierres"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- VACÍO -->
+      <div id="vacio" class="hidden p-8 text-center text-slate-400 mt-6">
+        <svg class="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+        <p class="text-lg font-medium">No hay cierres registrados</p>
+        <p class="text-sm mt-2">Los cierres de caja aparecerán aquí</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Modal de Detalles por Rubro -->
+  <div id="modalRubros" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full">
+      <div class="bg-gradient-to-r from-slate-700 to-slate-800 p-6 text-white">
+        <h3 class="text-2xl font-bold">📊 Detalle por Rubro</h3>
+        <p class="text-slate-200 mt-1" id="fechaDetalle"></p>
+      </div>
+
+      <div class="p-6 space-y-4">
+        <div class="bg-blue-50 border-2 border-blue-200 rounded-lg p-6">
+          <div class="flex justify-between items-center">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                <span class="text-2xl">📚</span>
+              </div>
+              <span class="text-lg font-semibold text-blue-900">Librería</span>
+            </div>
+            <div class="text-3xl font-bold text-blue-600">$<span id="detalleLibreria">0.00</span></div>
+          </div>
+        </div>
+
+        <div class="bg-green-50 border-2 border-green-200 rounded-lg p-6">
+          <div class="flex justify-between items-center">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                <span class="text-2xl">🥤</span>
+              </div>
+              <span class="text-lg font-semibold text-green-900">Descartable</span>
+            </div>
+            <div class="text-3xl font-bold text-green-600">$<span id="detalleDescartable">0.00</span></div>
+          </div>
+        </div>
+
+        <div class="bg-pink-50 border-2 border-pink-200 rounded-lg p-6">
+          <div class="flex justify-between items-center">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center">
+                <span class="text-2xl">🍬</span>
+              </div>
+              <span class="text-lg font-semibold text-pink-900">Caramelo</span>
+            </div>
+            <div class="text-3xl font-bold text-pink-600">$<span id="detalleCaramelo">0.00</span></div>
+          </div>
+        </div>
+
+        <button id="btnCerrarModal" class="w-full mt-6 px-6 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-lg transition-all">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+/* 🔐 SOLO ADMIN */
+if (localStorage.getItem("rol") !== "ADMIN") {
+  location.href = "/admin/login";
+}
+
+const tabla = document.getElementById("tablaCierres");
+const vacio = document.getElementById("vacio");
+const modalRubros = document.getElementById("modalRubros");
+const btnCerrarModal = document.getElementById("btnCerrarModal");
+
+const cierres = JSON.parse(localStorage.getItem("cierresCaja") || "[]");
+
+if (cierres.length === 0) {
+  vacio.classList.remove("hidden");
+} else {
+  // Calcular totales generales
+  let totales = { efectivo: 0, transferencia: 0, debito: 0, credito: 0 };
+
+  cierres.forEach(c => {
+    totales.efectivo += c.efectivo || 0;
+    totales.transferencia += c.transferencia || 0;
+    totales.debito += c.debito || 0;
+    totales.credito += c.credito || 0;
+  });
+
+  document.getElementById("totalEfectivo").textContent = totales.efectivo.toFixed(2);
+  document.getElementById("totalTransferencia").textContent = totales.transferencia.toFixed(2);
+  document.getElementById("totalDebito").textContent = totales.debito.toFixed(2);
+  document.getElementById("totalCredito").textContent = totales.credito.toFixed(2);
+
+  // Renderizar tabla (más recientes primero)
+  cierres.reverse().forEach((c, index) => {
+    tabla.innerHTML += `
+      <tr class="border-t hover:bg-slate-50 transition-colors">
+        <td class="p-4 font-medium text-slate-800">${c.fecha}</td>
+        <td class="p-4 text-right text-green-600 font-semibold">$${c.efectivo.toFixed(2)}</td>
+        <td class="p-4 text-right text-blue-600 font-semibold">$${c.transferencia.toFixed(2)}</td>
+        <td class="p-4 text-right text-orange-600 font-semibold">$${c.debito.toFixed(2)}</td>
+        <td class="p-4 text-right text-purple-600 font-semibold">$${c.credito.toFixed(2)}</td>
+        <td class="p-4 text-right font-bold text-slate-800 text-lg">$${c.total.toFixed(2)}</td>
+        <td class="p-4 text-center">
+          <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-semibold">${c.cantidadVentas || 0}</span>
+        </td>
+        <td class="p-4 text-center">
+          <button onclick="verDetalles(${cierres.length - 1 - index})" class="px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg transition-all text-sm font-medium">
+            Ver Rubros
+          </button>
+        </td>
+      </tr>
+    `;
+  });
+}
+
+window.verDetalles = (index) => {
+  const cierre = cierres[index];
+  
+  document.getElementById("fechaDetalle").textContent = cierre.fecha;
+  document.getElementById("detalleLibreria").textContent = (cierre.rubros?.libreria || 0).toFixed(2);
+  document.getElementById("detalleDescartable").textContent = (cierre.rubros?.descartable || 0).toFixed(2);
+  document.getElementById("detalleCaramelo").textContent = (cierre.rubros?.caramelo || 0).toFixed(2);
+  
+  modalRubros.classList.remove("hidden");
+};
+
+btnCerrarModal.addEventListener("click", () => {
+  modalRubros.classList.add("hidden");
+});
+</script>
+</Layout>

@@ -1,0 +1,108 @@
+---
+import Layout from "../../layouts/Layout.astro";
+---
+<Layout title="Admin">
+    <script>
+        const role = localStorage.getItem("rol");
+        if (role !== "ADMIN") {
+            window.location.href = "/admin/login";
+        }
+    </script>
+    
+    <div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
+        <div class="max-w-6xl mx-auto">
+            <!-- Header -->
+            <div class="mb-8">
+                <h1 class="text-4xl font-bold text-slate-800 mb-2">Panel de Administración</h1>
+                <p class="text-slate-600">Gestiona tu negocio desde un solo lugar</p>
+            </div>
+
+            <!-- Cards Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Cobrar Card -->
+                <a href="/admin/caja" class="group relative bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden transform hover:-translate-y-1">
+                    <div class="absolute inset-0 bg-gradient-to-br from-green-500 to-green-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="relative p-8">
+                        <div class="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mb-4 group-hover:bg-white/20 transition-colors duration-300">
+                            <svg class="w-8 h-8 text-green-600 group-hover:text-white transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            </svg>
+                        </div>
+                        <h2 class="text-2xl font-bold text-slate-800 group-hover:text-white transition-colors duration-300 mb-2">Cobrar</h2>
+                        <p class="text-slate-600 group-hover:text-white/90 transition-colors duration-300">Registrar ventas y procesar pagos</p>
+                    </div>
+                </a>
+
+                <!-- Productos Card -->
+                <a href="/admin/productos" class="group relative bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden transform hover:-translate-y-1">
+                    <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="relative p-8">
+                        <div class="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mb-4 group-hover:bg-white/20 transition-colors duration-300">
+                            <svg class="w-8 h-8 text-blue-600 group-hover:text-white transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                            </svg>
+                        </div>
+                        <h2 class="text-2xl font-bold text-slate-800 group-hover:text-white transition-colors duration-300 mb-2">Productos</h2>
+                        <p class="text-slate-600 group-hover:text-white/90 transition-colors duration-300">Gestionar inventario y catálogo</p>
+                    </div>
+                </a>
+
+                <!-- Caja Card -->
+                <a href="/admin/cierres" class="group relative bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden transform hover:-translate-y-1">
+                    <div class="absolute inset-0 bg-gradient-to-br from-purple-500 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="relative p-8">
+                        <div class="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mb-4 group-hover:bg-white/20 transition-colors duration-300">
+                            <svg class="w-8 h-8 text-purple-600 group-hover:text-white transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                            </svg>
+                        </div>
+                        <h2 class="text-2xl font-bold text-slate-800 group-hover:text-white transition-colors duration-300 mb-2">Historial de Caja</h2>
+                        <p class="text-slate-600 group-hover:text-white/90 transition-colors duration-300">Cierre de caja y reportes</p>
+                    </div>
+                </a>
+
+                <a href="/admin/cierre" class="group relative bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden transform hover:-translate-y-1">
+                    <div class="absolute inset-0 bg-gradient-to-br from-purple-500 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="relative p-8">
+                        <div class="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mb-4 group-hover:bg-white/20 transition-colors duration-300">
+                            <svg class="w-8 h-8 text-purple-600 group-hover:text-white transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                            </svg>
+                        </div>
+                        <h2 class="text-2xl font-bold text-slate-800 group-hover:text-white transition-colors duration-300 mb-2">Historial del día</h2>
+                        <p>Ver lo del día</p>
+                    </div>
+                </a>
+
+                <a href="/admin/pendiente" class="group relative bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden transform hover:-translate-y-1">
+                    <div class="absolute inset-0 bg-gradient-to-br from-red-500 to-red-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="relative p-8">
+                        <div class="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mb-4 group-hover:bg-white/20 transition-colors duration-300">
+                            <svg class="w-8 h-8 text-red-600 group-hover:text-white transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                            </svg>
+                        </div>
+                        <h2 class="text-2xl font-bold text-slate-800 group-hover:text-white transition-colors duration-300 mb-2">Pagos pendientes</h2>
+                        <p>Clientes con deudas</p>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Stats Section (opcional) -->
+            <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="text-sm text-slate-600 mb-1">Ventas Hoy</div>
+                    <div class="text-3xl font-bold text-slate-800">--</div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="text-sm text-slate-600 mb-1">Productos</div>
+                    <div class="text-3xl font-bold text-slate-800">--</div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="text-sm text-slate-600 mb-1">Estado Caja</div>
+                    <div class="text-3xl font-bold text-green-600">Abierta</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</Layout>

@@ -1,0 +1,762 @@
+---
+import Layout from "../../layouts/Layout.astro";
+---
+
+<Layout title="Caja">
+  <div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
+    <div class="max-w-6xl mx-auto">
+
+      <div class="bg-white rounded-xl shadow-lg p-6 mb-6 flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-slate-800">💵 Caja</h1>
+          <p class="text-slate-600">Procesar pedidos pendientes</p>
+        </div>
+        <div class="flex items-center gap-4">
+          <button id="btnCerrarCaja" class="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-all shadow-md flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            Cerrar Caja
+          </button>
+          <a href="/admin" class="text-slate-600 hover:text-slate-800 transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Resumen del día -->
+      <div class="grid md:grid-cols-5 gap-4 mb-6">
+        <div class="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl p-4 shadow-lg">
+          <div class="text-sm opacity-90">Efectivo</div>
+          <div class="text-2xl font-bold">$<span id="totalEfectivo">0.00</span></div>
+        </div>
+        <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl p-4 shadow-lg">
+          <div class="text-sm opacity-90">Transferencia</div>
+          <div class="text-2xl font-bold">$<span id="totalTransferencia">0.00</span></div>
+        </div>
+        <div class="bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-xl p-4 shadow-lg">
+          <div class="text-sm opacity-90">Débito</div>
+          <div class="text-2xl font-bold">$<span id="totalDebito">0.00</span></div>
+        </div>
+        <div class="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl p-4 shadow-lg">
+          <div class="text-sm opacity-90">Crédito</div>
+          <div class="text-2xl font-bold">$<span id="totalCredito">0.00</span></div>
+        </div>
+        <div class="bg-gradient-to-br from-slate-700 to-slate-800 text-white rounded-xl p-4 shadow-lg">
+          <div class="text-sm opacity-90">Total Día</div>
+          <div class="text-2xl font-bold">$<span id="totalDia">0.00</span></div>
+        </div>
+      </div>
+
+      <!-- Lista de pedidos pendientes -->
+      <div id="listaPedidos" class="mb-6"></div>
+
+      <!-- Detalle del pedido seleccionado -->
+      <div id="pedidoActual" class="hidden">
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-6">
+          <div class="bg-slate-700 p-3 flex justify-between items-center">
+            <h2 class="text-white font-semibold">Pedido de: <span id="clienteNombre"></span></h2>
+            <button id="btnCancelarPedido" class="text-white hover:text-red-300 transition-colors">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-slate-100">
+                <tr class="text-sm text-slate-600">
+                  <th class="p-3 text-left">Código</th>
+                  <th class="p-3 text-left">Producto</th>
+                  <th class="p-3 text-center">Cant</th>
+                  <th class="p-3 text-right">Precio</th>
+                  <th class="p-3 text-right">Subtotal</th>
+                </tr>
+              </thead>
+              <tbody id="tablaCaja"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Métodos de pago y totales -->
+        <div class="grid md:grid-cols-2 gap-6">
+          <!-- Métodos de pago -->
+          <div class="bg-white rounded-xl shadow-lg p-6">
+            <h3 class="text-lg font-semibold mb-4 text-slate-800">Método de Pago</h3>
+            <div class="space-y-3">
+              <button class="metodo-pago w-full p-4 border-2 rounded-lg transition-all hover:border-blue-500" data-metodo="efectivo" data-recargo="0">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                      <span class="text-xl">💵</span>
+                    </div>
+                    <div class="text-left">
+                      <div class="font-semibold text-slate-800">Efectivo</div>
+                      <div class="text-sm text-slate-500">Sin recargo</div>
+                    </div>
+                  </div>
+                  <div class="text-green-600 font-bold">0%</div>
+                </div>
+              </button>
+
+              <button class="metodo-pago w-full p-4 border-2 rounded-lg transition-all hover:border-blue-500" data-metodo="transferencia" data-recargo="0">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                      <span class="text-xl">🏦</span>
+                    </div>
+                    <div class="text-left">
+                      <div class="font-semibold text-slate-800">Transferencia</div>
+                      <div class="text-sm text-slate-500">Sin recargo</div>
+                    </div>
+                  </div>
+                  <div class="text-blue-600 font-bold">0%</div>
+                </div>
+              </button>
+
+              <button class="metodo-pago w-full p-4 border-2 rounded-lg transition-all hover:border-blue-500" data-metodo="debito" data-recargo="8">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
+                      <span class="text-xl">💳</span>
+                    </div>
+                    <div class="text-left">
+                      <div class="font-semibold text-slate-800">Débito</div>
+                      <div class="text-sm text-slate-500">Recargo 8%</div>
+                    </div>
+                  </div>
+                  <div class="text-orange-600 font-bold">+8%</div>
+                </div>
+              </button>
+
+              <button class="metodo-pago w-full p-4 border-2 rounded-lg transition-all hover:border-blue-500" data-metodo="credito" data-recargo="15">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                      <span class="text-xl">💎</span>
+                    </div>
+                    <div class="text-left">
+                      <div class="font-semibold text-slate-800">Crédito</div>
+                      <div class="text-sm text-slate-500">Recargo 15%</div>
+                    </div>
+                  </div>
+                  <div class="text-purple-600 font-bold">+15%</div>
+                </div>
+              </button>
+
+              <button class="metodo-pago w-full p-4 border-2 rounded-lg transition-all hover:border-blue-500" data-metodo="pendiente" data-recargo="0">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                      <span class="text-xl">⏳</span>
+                    </div>
+                    <div class="text-left">
+                      <div class="font-semibold text-slate-800">Pendiente</div>
+                      <div class="text-sm text-slate-500">A cobrar después</div>
+                    </div>
+                  </div>
+                  <div class="text-yellow-600 font-bold">0%</div>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Resumen y cobro -->
+          <div class="space-y-6">
+            <div class="bg-white rounded-xl shadow-lg p-6">
+              <h3 class="text-lg font-semibold mb-4 text-slate-800">Resumen</h3>
+              <div class="space-y-3">
+                <div class="flex justify-between text-slate-600">
+                  <span>Subtotal:</span>
+                  <span class="font-semibold">$<span id="subtotalCaja">0.00</span></span>
+                </div>
+                <div class="flex justify-between text-slate-600">
+                  <span>Recargo (<span id="porcentajeRecargo">0</span>%):</span>
+                  <span class="font-semibold">$<span id="recargoCaja">0.00</span></span>
+                </div>
+                <div class="border-t-2 border-slate-200 pt-3">
+                  <div class="flex justify-between items-center">
+                    <span class="text-xl font-bold text-slate-800">Total:</span>
+                    <span class="text-3xl font-bold text-green-600">$<span id="totalCaja">0.00</span></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-6">
+              <h3 class="text-lg font-semibold mb-4 text-slate-800">Cobro</h3>
+              <div class="space-y-4">
+                <div id="formPendiente" class="hidden space-y-4">
+                  <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Nombre completo</label>
+                    <input id="nombrePendiente" type="text" placeholder="Ej: Juan Pérez" 
+                      class="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:border-yellow-500 focus:ring focus:ring-yellow-200 transition-all">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Número de celular</label>
+                    <input id="celularPendiente" type="tel" placeholder="Ej: 3516123456" 
+                      class="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:border-yellow-500 focus:ring focus:ring-yellow-200 transition-all">
+                  </div>
+                </div>
+                <div id="formEfectivo" class="hidden">
+                  <label class="block text-sm font-medium text-slate-700 mb-2">Monto recibido</label>
+                  <div class="relative">
+                    <span class="absolute left-3 top-3 text-slate-500 font-semibold">$</span>
+                    <input id="montoRecibido" type="number" step="0.01" placeholder="0.00" 
+                      class="w-full pl-8 pr-4 py-3 border-2 border-slate-200 rounded-lg focus:border-blue-500 focus:ring focus:ring-blue-200 transition-all text-lg font-semibold">
+                  </div>
+                </div>
+                <div id="vueltoContainer" class="hidden bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
+                  <div class="flex justify-between items-center">
+                    <span class="text-blue-800 font-medium">Vuelto:</span>
+                    <span class="text-2xl font-bold text-blue-600">$<span id="vuelto">0.00</span></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <button id="btnProcesar" disabled
+              class="w-full bg-green-600 hover:bg-green-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-semibold rounded-xl px-6 py-4 shadow-md transition-all text-lg">
+              Procesar Pago
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Modal de Cierre de Caja -->
+  <div id="modalCierre" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="bg-gradient-to-r from-red-600 to-red-700 p-6 text-white">
+        <h3 class="text-2xl font-bold">🔒 Cerrar Caja del Día</h3>
+        <p class="text-red-100 mt-1" id="fechaCierre"></p>
+      </div>
+
+      <div class="p-6 space-y-6">
+        <!-- Resumen por Método de Pago -->
+        <div>
+          <h4 class="font-semibold text-lg text-slate-800 mb-3">Resumen por Método de Pago</h4>
+          <div class="grid md:grid-cols-4 gap-4">
+            <div class="bg-green-50 border-2 border-green-200 rounded-lg p-4">
+              <div class="text-green-800 font-medium mb-1">💵 Efectivo</div>
+              <div class="text-2xl font-bold text-green-600">$<span id="cierreEfectivo">0.00</span></div>
+            </div>
+            <div class="bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
+              <div class="text-blue-800 font-medium mb-1">🏦 Transferencia</div>
+              <div class="text-2xl font-bold text-blue-600">$<span id="cierreTransferencia">0.00</span></div>
+            </div>
+            <div class="bg-orange-50 border-2 border-orange-200 rounded-lg p-4">
+              <div class="text-orange-800 font-medium mb-1">💳 Débito</div>
+              <div class="text-2xl font-bold text-orange-600">$<span id="cierreDebito">0.00</span></div>
+            </div>
+            <div class="bg-purple-50 border-2 border-purple-200 rounded-lg p-4">
+              <div class="text-purple-800 font-medium mb-1">💎 Crédito</div>
+              <div class="text-2xl font-bold text-purple-600">$<span id="cierreCredito">0.00</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resumen por Rubro -->
+        <div>
+          <h4 class="font-semibold text-lg text-slate-800 mb-3">Resumen por Rubro</h4>
+          <div class="bg-slate-50 rounded-lg p-4 space-y-3">
+            <div class="flex justify-between items-center">
+              <span class="font-medium text-slate-700">📚 Librería</span>
+              <span class="text-xl font-bold text-slate-800">$<span id="cierreLibreria">0.00</span></span>
+            </div>
+            <div class="flex justify-between items-center border-t pt-3">
+              <span class="font-medium text-slate-700">🥤 Descartable</span>
+              <span class="text-xl font-bold text-slate-800">$<span id="cierreDescartable">0.00</span></span>
+            </div>
+            <div class="flex justify-between items-center border-t pt-3">
+              <span class="font-medium text-slate-700">🍬 Caramelo</span>
+              <span class="text-xl font-bold text-slate-800">$<span id="cierreCaramelo">0.00</span></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Total General -->
+        <div class="bg-gradient-to-br from-slate-700 to-slate-800 rounded-lg p-6 text-white">
+          <div class="flex justify-between items-center">
+            <div>
+              <div class="text-sm opacity-90 mb-1">Total del Día</div>
+              <div class="text-sm opacity-75">Ventas completadas: <span id="cantidadVentas">0</span></div>
+            </div>
+            <div class="text-4xl font-bold">$<span id="cierreTotal">0.00</span></div>
+          </div>
+        </div>
+
+        <!-- Botones -->
+        <div class="flex gap-3 pt-4 border-t">
+          <button id="btnCancelarCierre" class="flex-1 px-6 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-lg transition-all">
+            Cancelar
+          </button>
+          <button id="btnConfirmarCierre"
+            class="flex-1 px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-all">
+            🔒 Confirmar Cierre
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  let pedidosPendientes = JSON.parse(localStorage.getItem("pedidosPendientes") || "[]");
+let pedidoActualIndex = -1;
+let subtotal = 0;
+let recargo = 0;
+let total = 0;
+let metodoSeleccionado = null;
+
+const listaPedidos = document.getElementById("listaPedidos");
+const pedidoActualDiv = document.getElementById("pedidoActual");
+const tablaCaja = document.getElementById("tablaCaja");
+const clienteNombreSpan = document.getElementById("clienteNombre");
+const subtotalCaja = document.getElementById("subtotalCaja");
+const recargoCaja = document.getElementById("recargoCaja");
+const porcentajeRecargo = document.getElementById("porcentajeRecargo");
+const totalCaja = document.getElementById("totalCaja");
+const montoRecibido = document.getElementById("montoRecibido");
+const vueltoContainer = document.getElementById("vueltoContainer");
+const vueltoSpan = document.getElementById("vuelto");
+const btnProcesar = document.getElementById("btnProcesar");
+const btnCancelarPedido = document.getElementById("btnCancelarPedido");
+const formPendiente = document.getElementById("formPendiente");
+const formEfectivo = document.getElementById("formEfectivo");
+const nombrePendiente = document.getElementById("nombrePendiente");
+const celularPendiente = document.getElementById("celularPendiente");
+const btnCerrarCaja = document.getElementById("btnCerrarCaja");
+const modalCierre = document.getElementById("modalCierre");
+const btnCancelarCierre = document.getElementById("btnCancelarCierre");
+const btnConfirmarCierre = document.getElementById("btnConfirmarCierre");
+
+function actualizarTotalesDia() {
+  const ventas = JSON.parse(localStorage.getItem("ventas") || "[]");
+  const hoy = new Date().toISOString().split('T')[0];
+  
+  const ventasHoy = ventas.filter(v => v.fecha.startsWith(hoy) && v.metodoPago !== "pendiente");
+  
+  let totales = { efectivo: 0, transferencia: 0, debito: 0, credito: 0, total: 0 };
+
+  ventasHoy.forEach(v => {
+    const monto = v.total || 0;
+    totales.total += monto;
+    
+    if (v.metodoPago === "efectivo") totales.efectivo += monto;
+    else if (v.metodoPago === "transferencia") totales.transferencia += monto;
+    else if (v.metodoPago === "debito") totales.debito += monto;
+    else if (v.metodoPago === "credito") totales.credito += monto;
+  });
+
+  document.getElementById("totalEfectivo").textContent = totales.efectivo.toFixed(2);
+  document.getElementById("totalTransferencia").textContent = totales.transferencia.toFixed(2);
+  document.getElementById("totalDebito").textContent = totales.debito.toFixed(2);
+  document.getElementById("totalCredito").textContent = totales.credito.toFixed(2);
+  document.getElementById("totalDia").textContent = totales.total.toFixed(2);
+}
+
+function renderPedidosPendientes() {
+  if (pedidosPendientes.length === 0) {
+    listaPedidos.innerHTML = `
+      <div class="bg-white rounded-xl shadow-lg p-8 text-center text-slate-400">
+        <svg class="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+        </svg>
+        <p class="text-lg font-medium">No hay pedidos pendientes</p>
+        <p class="text-sm mt-2">Los pedidos del mostrador aparecerán aquí</p>
+      </div>
+    `;
+    return;
+  }
+
+  listaPedidos.innerHTML = `
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+      <div class="bg-slate-700 p-3">
+        <h2 class="text-white font-semibold">Pedidos Pendientes (${pedidosPendientes.length})</h2>
+      </div>
+      <div class="divide-y divide-slate-200">
+        ${pedidosPendientes.map((pedido, index) => {
+          const totalPedido = pedido.items.reduce((sum, item) => sum + item.subtotal, 0);
+          const fecha = new Date(pedido.fecha);
+          return `
+            <div class="p-4 hover:bg-slate-50 cursor-pointer transition-colors flex items-center justify-between" onclick="seleccionarPedido(${index})">
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                  <span class="text-xl">🛒</span>
+                </div>
+                <div>
+                  <div class="font-semibold text-slate-800">${pedido.clienteNombre}</div>
+                  <div class="text-sm text-slate-500">${pedido.items.length} productos • ${fecha.toLocaleTimeString('es-AR', {hour: '2-digit', minute: '2-digit'})}</div>
+                </div>
+              </div>
+              <div class="text-right">
+                <div class="text-xl font-bold text-slate-800">$${totalPedido.toFixed(2)}</div>
+                <div class="text-sm text-blue-600 font-medium">Ver detalles →</div>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    </div>
+  `;
+}
+
+window.seleccionarPedido = (index) => {
+  pedidoActualIndex = index;
+  const pedido = pedidosPendientes[index];
+  
+  listaPedidos.style.display = "none";
+  pedidoActualDiv.classList.remove("hidden");
+  
+  clienteNombreSpan.textContent = pedido.clienteNombre;
+  
+  subtotal = 0;
+  tablaCaja.innerHTML = "";
+  pedido.items.forEach(item => {
+    subtotal += item.subtotal;
+    tablaCaja.innerHTML += `
+      <tr class="hover:bg-slate-50 transition-colors">
+        <td class="p-3"><span class="font-mono text-sm bg-slate-100 px-2 py-1 rounded">${item.codigo}</span></td>
+        <td class="p-3 font-medium text-slate-800">${item.nombre}</td>
+        <td class="p-3 text-center"><span class="bg-blue-100 text-blue-800 px-2 py-1 rounded font-semibold">${item.cantidad}</span></td>
+        <td class="p-3 text-right text-slate-700">$${item.precio.toFixed(2)}</td>
+        <td class="p-3 text-right font-semibold text-slate-800">$${item.subtotal.toFixed(2)}</td>
+      </tr>
+    `;
+  });
+  
+  actualizarTotales();
+};
+
+btnCancelarPedido.addEventListener("click", () => {
+  listaPedidos.style.display = "block";
+  pedidoActualDiv.classList.add("hidden");
+  pedidoActualIndex = -1;
+  resetearCobro();
+});
+
+document.querySelectorAll(".metodo-pago").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".metodo-pago").forEach(b => {
+      b.classList.remove("border-blue-500", "bg-blue-50", "border-yellow-500", "bg-yellow-50");
+    });
+    
+    metodoSeleccionado = btn.dataset.metodo;
+    recargo = parseFloat(btn.dataset.recargo);
+    
+    if (metodoSeleccionado === "pendiente") {
+      btn.classList.add("border-yellow-500", "bg-yellow-50");
+      formPendiente.classList.remove("hidden");
+      formEfectivo.classList.add("hidden");
+      vueltoContainer.classList.add("hidden");
+      montoRecibido.value = "";
+    } else {
+      btn.classList.add("border-blue-500", "bg-blue-50");
+      formPendiente.classList.add("hidden");
+      formEfectivo.classList.remove("hidden");
+      nombrePendiente.value = "";
+      celularPendiente.value = "";
+      
+      if (metodoSeleccionado === "transferencia" || metodoSeleccionado === "debito" || metodoSeleccionado === "credito") {
+        formEfectivo.classList.add("hidden");
+        vueltoContainer.classList.add("hidden");
+      }
+    }
+    
+    actualizarTotales();
+    validarProcesar();
+  });
+});
+
+nombrePendiente.addEventListener("input", validarProcesar);
+celularPendiente.addEventListener("input", validarProcesar);
+
+montoRecibido.addEventListener("input", () => {
+  const monto = parseFloat(montoRecibido.value) || 0;
+  
+  if (monto >= total) {
+    const vueltoVal = monto - total;
+    vueltoSpan.textContent = vueltoVal.toFixed(2);
+    vueltoContainer.classList.remove("hidden");
+  } else {
+    vueltoContainer.classList.add("hidden");
+  }
+  
+  validarProcesar();
+});
+
+function actualizarTotales() {
+  subtotalCaja.textContent = subtotal.toFixed(2);
+  porcentajeRecargo.textContent = recargo.toFixed(0);
+  
+  const montoRecargo = subtotal * (recargo / 100);
+  recargoCaja.textContent = montoRecargo.toFixed(2);
+  
+  total = subtotal + montoRecargo;
+  totalCaja.textContent = total.toFixed(2);
+}
+
+function validarProcesar() {
+  if (!metodoSeleccionado) {
+    btnProcesar.disabled = true;
+    return;
+  }
+  
+  if (metodoSeleccionado === "pendiente") {
+    const nombre = nombrePendiente.value.trim();
+    const celular = celularPendiente.value.trim();
+    btnProcesar.disabled = !nombre || !celular;
+  } else if (metodoSeleccionado === "efectivo") {
+    const monto = parseFloat(montoRecibido.value) || 0;
+    btnProcesar.disabled = monto < total;
+  } else {
+    btnProcesar.disabled = false;
+  }
+}
+
+function resetearCobro() {
+  document.querySelectorAll(".metodo-pago").forEach(b => {
+    b.classList.remove("border-blue-500", "bg-blue-50", "border-yellow-500", "bg-yellow-50");
+  });
+  metodoSeleccionado = null;
+  recargo = 0;
+  montoRecibido.value = "";
+  nombrePendiente.value = "";
+  celularPendiente.value = "";
+  vueltoContainer.classList.add("hidden");
+  formPendiente.classList.add("hidden");
+  formEfectivo.classList.add("hidden");
+  btnProcesar.disabled = true;
+}
+
+btnProcesar.addEventListener("click", () => {
+  const pedido = pedidosPendientes[pedidoActualIndex];
+
+  let montoRecibidoVal = 0;
+  let vueltoVal = 0;
+  let efectivoIngresado = total;
+  let datosAdicionales = {};
+
+  if (metodoSeleccionado === "pendiente") {
+    datosAdicionales = {
+      nombreCliente: nombrePendiente.value.trim(),
+      celularCliente: celularPendiente.value.trim()
+    };
+  }
+
+  if (metodoSeleccionado === "efectivo") {
+    montoRecibidoVal = parseFloat(montoRecibido.value) || 0;
+    vueltoVal = montoRecibidoVal - total;
+
+    // 🔑 CLAVE: entra a caja lo que realmente recibió
+    efectivoIngresado = montoRecibidoVal >= total
+      ? montoRecibidoVal
+      : total;
+  }
+
+  if (metodoSeleccionado !== "efectivo" && metodoSeleccionado !== "pendiente") {
+    montoRecibidoVal = total;
+    efectivoIngresado = total;
+  }
+
+  let ventas = JSON.parse(localStorage.getItem("ventas") || "[]");
+
+  ventas.push({
+    id: Date.now(),
+    fecha: new Date().toISOString(),
+    cliente: pedido.clienteNombre,
+    clienteId: pedido.clienteId,
+    items: pedido.items,
+
+    subtotal,
+    recargo: subtotal * (recargo / 100),
+    total,
+
+    metodoPago: metodoSeleccionado,
+    montoRecibido: montoRecibidoVal,
+    vuelto: metodoSeleccionado === "efectivo" ? Math.max(vueltoVal, 0) : 0,
+
+    // 🔥 ESTO ARREGLA LA CAJA
+    efectivoIngresado
+  });
+
+  localStorage.setItem("ventas", JSON.stringify(ventas));
+
+  if (metodoSeleccionado === "pendiente") {
+    let pendientesCobro = JSON.parse(localStorage.getItem("pendientesCobro") || "[]");
+    pendientesCobro.push({
+      id: Date.now(),
+      fecha: new Date().toISOString(),
+      nombreCliente: datosAdicionales.nombreCliente,
+      celularCliente: datosAdicionales.celularCliente,
+      total,
+      items: pedido.items
+    });
+    localStorage.setItem("pendientesCobro", JSON.stringify(pendientesCobro));
+  }
+
+  pedidosPendientes.splice(pedidoActualIndex, 1);
+  localStorage.setItem("pedidosPendientes", JSON.stringify(pedidosPendientes));
+
+  showNotification("✅ Venta procesada correctamente", "success");
+
+  listaPedidos.style.display = "block";
+  pedidoActualDiv.classList.add("hidden");
+  pedidoActualIndex = -1;
+  resetearCobro();
+  renderPedidosPendientes();
+  actualizarTotalesDia();
+});
+
+// CIERRE DE CAJA
+btnCerrarCaja.addEventListener("click", () => {
+  const ventas = JSON.parse(localStorage.getItem("ventas") || "[]");
+  const productos = JSON.parse(localStorage.getItem("productos") || "[]");
+  const hoy = new Date().toISOString().split('T')[0];
+  
+  const ventasHoy = ventas.filter(v => v.fecha.startsWith(hoy) && v.metodoPago !== "pendiente");
+  
+  if (ventasHoy.length === 0) {
+    showNotification("No hay ventas para cerrar hoy", "error");
+    return;
+  }
+
+  // Calcular totales por método de pago
+  let totales = { efectivo: 0, transferencia: 0, debito: 0, credito: 0, total: 0 };
+  // Calcular totales por rubro
+  let rubros = { libreria: 0, descartable: 0, caramelo: 0 };
+
+  ventasHoy.forEach(v => {
+    const monto = v.total || 0;
+    totales.total += monto;
+    
+    if (v.metodoPago === "efectivo") {
+      totales.efectivo += v.efectivoIngresado ?? v.total;
+    }
+    else if (v.metodoPago === "transferencia") totales.transferencia += monto;
+    else if (v.metodoPago === "debito") totales.debito += monto;
+    else if (v.metodoPago === "credito") totales.credito += monto;
+
+    // Calcular por rubro
+    v.items.forEach(item => {
+      const producto = productos.find(p => p.codigo === item.codigo);
+      if (producto) {
+        const rubro = producto.rubro?.toLowerCase() || "libreria";
+        if (rubros[rubro] !== undefined) {
+          rubros[rubro] += item.subtotal;
+        }
+      }
+    });
+  });
+
+  // Mostrar en modal
+  const fecha = new Date();
+  document.getElementById("fechaCierre").textContent = fecha.toLocaleDateString('es-AR', { 
+    weekday: 'long', 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  });
+  
+  document.getElementById("cierreEfectivo").textContent = totales.efectivo.toFixed(2);
+  document.getElementById("cierreTransferencia").textContent = totales.transferencia.toFixed(2);
+  document.getElementById("cierreDebito").textContent = totales.debito.toFixed(2);
+  document.getElementById("cierreCredito").textContent = totales.credito.toFixed(2);
+  document.getElementById("cierreTotal").textContent = totales.total.toFixed(2);
+  
+  document.getElementById("cierreLibreria").textContent = rubros.libreria.toFixed(2);
+  document.getElementById("cierreDescartable").textContent = rubros.descartable.toFixed(2);
+  document.getElementById("cierreCaramelo").textContent = rubros.caramelo.toFixed(2);
+  
+  document.getElementById("cantidadVentas").textContent = ventasHoy.length;
+
+  modalCierre.classList.remove("hidden");
+});
+
+btnCancelarCierre.addEventListener("click", () => {
+  modalCierre.classList.add("hidden");
+});
+
+btnConfirmarCierre.addEventListener("click", () => {
+  const hoy = new Date().toISOString().split('T')[0];
+  const ventas = JSON.parse(localStorage.getItem("ventas") || "[]");
+  const productos = JSON.parse(localStorage.getItem("productos") || "[]");
+  
+  const ventasHoy = ventas.filter(v => v.fecha.startsWith(hoy) && v.metodoPago !== "pendiente");
+  
+  let totales = { efectivo: 0, transferencia: 0, debito: 0, credito: 0, total: 0 };
+  let rubros = { libreria: 0, descartable: 0, caramelo: 0 };
+
+  ventasHoy.forEach(v => {
+    const monto = v.total || 0;
+    totales.total += monto;
+    
+    if (v.metodoPago === "efectivo") {
+      totales.efectivo += v.efectivoIngresado ?? v.total;
+    }
+    else if (v.metodoPago === "transferencia") totales.transferencia += monto;
+    else if (v.metodoPago === "debito") totales.debito += monto;
+    else if (v.metodoPago === "credito") totales.credito += monto;
+
+    v.items.forEach(item => {
+      const producto = productos.find(p => p.codigo === item.codigo);
+      if (producto) {
+        const rubro = producto.rubro?.toLowerCase() || "libreria";
+        if (rubros[rubro] !== undefined) {
+          rubros[rubro] += item.subtotal;
+        }
+      }
+    });
+  });
+
+  // Guardar cierre
+  let cierres = JSON.parse(localStorage.getItem("cierresCaja") || "[]");
+  cierres.push({
+    fecha: new Date().toLocaleDateString('es-AR'),
+    fechaISO: new Date().toISOString(),
+    efectivo: totales.efectivo,
+    transferencia: totales.transferencia,
+    debito: totales.debito,
+    credito: totales.credito,
+    total: totales.total,
+    rubros: rubros,
+    cantidadVentas: ventasHoy.length
+  });
+  localStorage.setItem("cierresCaja", JSON.stringify(cierres));
+
+  modalCierre.classList.add("hidden");
+  showNotification("✅ Caja cerrada exitosamente", "success");
+  
+  actualizarTotalesDia();
+});
+
+function showNotification(message, type) {
+  const n = document.createElement("div");
+  n.className = `fixed top-4 right-4 px-6 py-4 rounded-lg shadow-xl text-white font-semibold z-50 transform transition-all duration-300 ${type === "success" ? "bg-green-600" : "bg-red-600"}`;
+  n.textContent = message;
+  document.body.appendChild(n);
+  setTimeout(() => {
+    n.style.opacity = "0";
+    setTimeout(() => n.remove(), 300);
+  }, 3000);
+}
+
+// Inicializar
+renderPedidosPendientes();
+actualizarTotalesDia();
+
+// Auto-refresh
+setInterval(() => {
+  const nuevoPedidos = JSON.parse(localStorage.getItem("pedidosPendientes") || "[]");
+  if (nuevoPedidos.length !== pedidosPendientes.length && pedidoActualIndex === -1) {
+    pedidosPendientes = nuevoPedidos;
+    renderPedidosPendientes();
+  }
+  actualizarTotalesDia();
+}, 5000);
+</script>

@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1767065190262,
+    "pedidoId": 1767065118886,
+    "items": [
+      {
+        "codigo": "BCB01",
+        "nombre": "Bandeja Carton 1",
+        "cantidad": 1,
+        "precio": 10,
+        "subtotal": 10
+      }
+    ],
+    "total": 10,
+    "metodoPago": "efectivo",
+    "montoEfectivo": 10,
+    "montoTransferencia": 0,
+    "cliente": "Consumidor final",
+    "usuario": "empleado",
+    "fecha": "2025-12-30T03:26:30.262Z"
+  }
+]

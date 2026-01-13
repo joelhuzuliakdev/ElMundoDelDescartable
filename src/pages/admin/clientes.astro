@@ -1,0 +1,66 @@
+---
+import Layout from "../../layouts/Layout.astro";
+
+---
+<Layout>
+    <div class="p-6 max-w-xl mx-auto">
+        <h1 class="text-2xl font-bold mb-4">👤 Clientes</h1>
+
+        <input id="nombre" placeholder="Nombre"
+            class="border p-2 w-full mb-2">
+
+        <select id="tipo" class="border p-2 w-full mb-2">
+            <option value="minorista">Minorista</option>
+            <option value="mayorista">Mayorista</option>
+            <option value="especial">Especial</option>
+        </select>
+
+        <input id="descuento" type="number" placeholder="% descuento"
+            class="border p-2 w-full mb-4">
+
+        <button onclick="save()"
+            class="bg-green-600 text-white px-4 py-2">
+            Guardar cliente
+        </button>
+
+        <ul id="list" class="mt-6 space-y-2"></ul>
+    </div>
+</Layout>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+    let clientes = JSON.parse(localStorage.getItem("clientes")) || [];
+
+    window.save = function () {
+        const c = {
+        id: Date.now(),
+        nombre: nombre.value,
+        tipo: tipo.value,
+        descuento: Number(descuento.value || 0)
+        };
+
+        if (!c.nombre) return alert("Nombre requerido");
+
+        clientes.push(c);
+        localStorage.setItem("clientes", JSON.stringify(clientes));
+        render();
+
+        nombre.value = "";
+        descuento.value = "";
+    };
+
+    function render() {
+        list.innerHTML = "";
+        clientes.forEach(c => {
+        list.innerHTML += `
+            <li class="border p-2">
+            <b>${c.nombre}</b> (${c.tipo}) - ${c.descuento}%
+            </li>
+        `;
+        });
+    }
+
+    render();
+    });
+</script>

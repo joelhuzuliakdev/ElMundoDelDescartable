@@ -1,0 +1,239 @@
+---
+import Layout from "../../layouts/Layout.astro";
+---
+
+<Layout title="Historial del Día">
+  <div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
+    <div class="max-w-7xl mx-auto">
+
+      <!-- HEADER -->
+      <div class="bg-white rounded-xl shadow-lg p-6 mb-6 flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-slate-800">📊 Historial del Día</h1>
+          <p class="text-slate-600" id="fechaActual"></p>
+        </div>
+        <a href="/admin" class="text-slate-600 hover:text-slate-800 transition-colors">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+          </svg>
+        </a>
+      </div>
+
+      <!-- TOTALES POR MÉTODO DE PAGO -->
+      <div class="grid md:grid-cols-5 gap-4 mb-6">
+        <div class="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl p-6 shadow-lg">
+          <div class="text-sm opacity-90 mb-1">💵 Efectivo</div>
+          <div class="text-3xl font-bold">$<span id="t-efectivo">0.00</span></div>
+        </div>
+        <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl p-6 shadow-lg">
+          <div class="text-sm opacity-90 mb-1">🏦 Transferencia</div>
+          <div class="text-3xl font-bold">$<span id="t-transferencia">0.00</span></div>
+        </div>
+        <div class="bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-xl p-6 shadow-lg">
+          <div class="text-sm opacity-90 mb-1">💳 Débito</div>
+          <div class="text-3xl font-bold">$<span id="t-debito">0.00</span></div>
+        </div>
+        <div class="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl p-6 shadow-lg">
+          <div class="text-sm opacity-90 mb-1">💎 Crédito</div>
+          <div class="text-3xl font-bold">$<span id="t-credito">0.00</span></div>
+        </div>
+        <div class="bg-gradient-to-br from-slate-700 to-slate-800 text-white rounded-xl p-6 shadow-lg">
+          <div class="text-sm opacity-90 mb-1">Total</div>
+          <div class="text-3xl font-bold">$<span id="t-total">0.00</span></div>
+        </div>
+      </div>
+
+      <!-- TOTALES POR RUBRO -->
+      <div class="grid md:grid-cols-3 gap-4 mb-6">
+        <div class="bg-white rounded-xl shadow-lg p-6">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center">
+                <span class="text-3xl">📚</span>
+              </div>
+              <div>
+                <div class="text-sm text-slate-600">Librería</div>
+                <div class="text-2xl font-bold text-slate-800">$<span id="t-libreria">0.00</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl shadow-lg p-6">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center">
+                <span class="text-3xl">🥤</span>
+              </div>
+              <div>
+                <div class="text-sm text-slate-600">Descartable</div>
+                <div class="text-2xl font-bold text-slate-800">$<span id="t-descartable">0.00</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl shadow-lg p-6">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-14 h-14 bg-pink-100 rounded-full flex items-center justify-center">
+                <span class="text-3xl">🍬</span>
+              </div>
+              <div>
+                <div class="text-sm text-slate-600">Caramelo</div>
+                <div class="text-2xl font-bold text-slate-800">$<span id="t-caramelo">0.00</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TABLA DE VENTAS -->
+      <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="bg-slate-700 p-4 flex items-center justify-between">
+          <h2 class="text-white font-semibold text-lg">Ventas del Día (<span id="cantidadVentas">0</span>)</h2>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead class="bg-slate-100">
+              <tr class="text-slate-600">
+                <th class="p-3 text-left">Hora</th>
+                <th class="p-3 text-left">Cliente</th>
+                <th class="p-3 text-left">Productos</th>
+                <th class="p-3 text-center">Método</th>
+                <th class="p-3 text-right">Total</th>
+              </tr>
+            </thead>
+            <tbody id="tablaVentas"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- VACÍO -->
+      <div id="vacio" class="hidden p-8 text-center text-slate-400 mt-6">
+        <svg class="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+        </svg>
+        <p class="text-lg font-medium">No hay ventas hoy</p>
+        <p class="text-sm mt-2">Las ventas del día aparecerán aquí</p>
+      </div>
+
+    </div>
+  </div>
+</Layout>
+
+<script>
+/* 🔐 SOLO ADMIN */
+if (localStorage.getItem("rol") !== "ADMIN") {
+  location.href = "/admin/login";
+}
+
+const tablaVentas = document.getElementById("tablaVentas");
+const vacio = document.getElementById("vacio");
+
+// Mostrar fecha actual
+const hoy = new Date();
+document.getElementById("fechaActual").textContent = hoy.toLocaleDateString('es-AR', {
+  weekday: 'long',
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric'
+});
+
+const ventas = JSON.parse(localStorage.getItem("ventas") || "[]");
+const productos = JSON.parse(localStorage.getItem("productos") || "[]");
+const hoyStr = hoy.toISOString().split('T')[0];
+
+// Filtrar ventas del día (excluyendo pendientes)
+const ventasHoy = ventas.filter(v => v.fecha.startsWith(hoyStr) && v.metodoPago !== "pendiente");
+
+if (ventasHoy.length === 0) {
+  vacio.classList.remove("hidden");
+}
+
+// Calcular totales
+let totales = {
+  efectivo: 0,
+  transferencia: 0,
+  debito: 0,
+  credito: 0,
+  total: 0
+};
+
+let rubros = {
+  libreria: 0,
+  descartable: 0,
+  caramelo: 0
+};
+
+ventasHoy.forEach(v => {
+  const monto = v.total || 0;
+  totales.total += monto;
+  
+  if (v.metodoPago === "efectivo") totales.efectivo += monto;
+  else if (v.metodoPago === "transferencia") totales.transferencia += monto;
+  else if (v.metodoPago === "debito") totales.debito += monto;
+  else if (v.metodoPago === "credito") totales.credito += monto;
+
+  // Calcular por rubro
+  v.items.forEach(item => {
+    const producto = productos.find(p => p.codigo === item.codigo);
+    if (producto) {
+      const rubro = producto.rubro?.toLowerCase() || "libreria";
+      if (rubros[rubro] !== undefined) {
+        rubros[rubro] += item.subtotal;
+      }
+    }
+  });
+});
+
+// Mostrar totales por método
+document.getElementById("t-efectivo").textContent = totales.efectivo.toFixed(2);
+document.getElementById("t-transferencia").textContent = totales.transferencia.toFixed(2);
+document.getElementById("t-debito").textContent = totales.debito.toFixed(2);
+document.getElementById("t-credito").textContent = totales.credito.toFixed(2);
+document.getElementById("t-total").textContent = totales.total.toFixed(2);
+
+// Mostrar totales por rubro
+document.getElementById("t-libreria").textContent = rubros.libreria.toFixed(2);
+document.getElementById("t-descartable").textContent = rubros.descartable.toFixed(2);
+document.getElementById("t-caramelo").textContent = rubros.caramelo.toFixed(2);
+
+document.getElementById("cantidadVentas").textContent = ventasHoy.length;
+
+// Renderizar tabla de ventas (más recientes primero)
+ventasHoy.reverse().forEach(v => {
+  const fecha = new Date(v.fecha);
+  const hora = fecha.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+  
+  const metodoBadge = {
+    efectivo: '<span class="bg-green-100 text-green-800 px-3 py-1 rounded-full font-semibold text-xs">💵 Efectivo</span>',
+    transferencia: '<span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-semibold text-xs">🏦 Transfer.</span>',
+    debito: '<span class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full font-semibold text-xs">💳 Débito</span>',
+    credito: '<span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full font-semibold text-xs">💎 Crédito</span>'
+  };
+
+  const productosResumen = v.items.length > 2 
+    ? `${v.items[0].nombre} y ${v.items.length - 1} más...`
+    : v.items.map(i => i.nombre).join(', ');
+
+  tablaVentas.innerHTML += `
+    <tr class="border-t hover:bg-slate-50 transition-colors">
+      <td class="p-3 font-medium text-slate-600">${hora}</td>
+      <td class="p-3 font-medium text-slate-800">${v.cliente}</td>
+      <td class="p-3 text-slate-600">
+        <div class="flex items-center gap-2">
+          <span class="bg-slate-100 text-slate-700 px-2 py-1 rounded font-semibold text-xs">${v.items.length}</span>
+          <span class="text-sm">${productosResumen}</span>
+        </div>
+      </td>
+      <td class="p-3 text-center">${metodoBadge[v.metodoPago] || v.metodoPago}</td>
+      <td class="p-3 text-right font-bold text-slate-800 text-lg">$${v.total.toFixed(2)}</td>
+    </tr>
+  `;
+});
+
+// Auto-refresh cada 10 segundos
+setInterval(() => {
+  location.reload();
+}, 10000);
+</script>
+</Layout>

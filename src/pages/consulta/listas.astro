@@ -1,0 +1,56 @@
+---
+import Layout from "../../layouts/Layout.astro";
+---
+<Layout title="Listas">
+    <script>
+    const role = localStorage.getItem("role");
+    if (!role) {
+        window.location.href = "/login";
+    }
+    </script>
+    <div class="p-6">
+        <h1 class="text-xl font-bold mb-4">Consulta de precios</h1>
+
+        <select id="filtro" class="border p-2 mb-4">
+            <option value="">Todos</option>
+            <option value="descartable">Descartables</option>
+            <option value="libreria">Librería</option>
+            <option value="caramelo">Caramelos</option>
+        </select>
+
+        <table class="w-full text-sm border">
+            <thead class="bg-gray-200">
+                <tr>
+                <th class="p-2">Código</th>
+                <th>Nombre</th>
+                <th>Precio</th>
+                </tr>
+            </thead>
+            <tbody id="tabla"></tbody>
+        </table>
+    </div>
+</Layout>
+
+<script>
+    const productos = JSON.parse(localStorage.getItem("productos")) || [];
+    const tabla = document.getElementById("tabla");
+    const filtro = document.getElementById("filtro");
+
+    function render() {
+        tabla.innerHTML = "";
+        productos
+            .filter(p => !filtro.value || p.categoria === filtro.value)
+            .forEach(p => {
+            tabla.innerHTML += `
+                <tr class="border-b">
+                <td class="p-2">${p.codigo}</td>
+                <td>${p.nombre}</td>
+                <td>$${p.menor}</td>
+                </tr>
+            `;
+            });
+    }
+
+    filtro.addEventListener("change", render);
+    render();
+</script>
