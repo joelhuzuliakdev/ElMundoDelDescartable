@@ -8,13 +8,11 @@
     "start": "node servidor-pos/server.js"
   },
   "dependencies": {
+    "astro": "^5.16.9",
     "@tailwindcss/vite": "^4.1.18",
     "cors": "^2.8.5",
     "express": "^5.2.1",
     "mongoose": "^9.1.3",
     "tailwindcss": "^4.1.18"
-  },
-  "devDependencies": {
-    "astro": "^5.16.9"
   }
 }
