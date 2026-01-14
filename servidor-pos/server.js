@@ -1,4 +1,3 @@
-// @ts-check
 import express from 'express';
 import cors from 'cors';
 import { promises as fs } from 'fs';
@@ -6,8 +5,9 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import mongoose from 'mongoose';
 import User from "./models/User.js";
-import bcrypt from "bcrypt";
+import bcrypt from 'bcryptjs';
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
 
 /* ==================== CONFIG ==================== */
 
@@ -62,6 +62,8 @@ async function initDataDir() {
     console.error('Error creando data dir:', err);
   }
 }
+
+dotenv.config({ path: './servidor-pos/.env' });
 
 /* ==================== HELPERS ==================== */
 async function readJSON(filename) {
@@ -285,7 +287,7 @@ app.get('/cierre', async (req, res) => {
 app.use(express.static(path.join(__dirname, 'dist')));
 
 // Redirigir cualquier ruta desconocida al index.html
-app.get('*', (req, res) => {
+app.use((req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
@@ -301,3 +303,6 @@ app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ error: 'Error interno del servidor' });
 });
+
+console.log("Env cargado desde:", process.cwd());
+console.log("JWT:", process.env.JWT_SECRET);
