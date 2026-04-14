@@ -40,7 +40,7 @@ const catEmojis: Record<string, string> = {
 >
 
 	<!-- ══════════ HERO ══════════ -->
-	<section class="relative min-h-[88vh] flex items-center overflow-hidden">
+	<section class="relative min-h-[100vh] flex items-center overflow-hidden">
 
 		<!-- Background con imagen del local -->
 		<div class="absolute inset-0 z-0">
@@ -91,20 +91,6 @@ const catEmojis: Record<string, string> = {
 					>
 						Consultar por WhatsApp
 					</button>
-				</div>
-
-				<!-- Mini stats inline -->
-				<div class="flex flex-wrap gap-6 mt-10">
-					{[
-						{ n: "+500", l: "Productos" },
-						{ n: "Mayor y menor", l: "Venta" },
-						{ n: "Todo el país", l: "Envíos" },
-					].map(s => (
-						<div class="text-white/90">
-							<span class="block font-bold text-lg leading-tight">{s.n}</span>
-							<span class="text-xs text-white/55 uppercase tracking-wide">{s.l}</span>
-						</div>
-					))}
 				</div>
 			</div>
 		</div>
